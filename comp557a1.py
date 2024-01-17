@@ -9,20 +9,26 @@ import taichi.math as tm
 import argparse
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--file", type=str, default="bunnyLowRes.obj")
+parser.add_argument("--file", type=str, default="cube.obj")  # Add argument requires an input for
+# each added argument when called from the command line
 parser.add_argument("--width", type=int, default=1440, help="Width of off screen framebuffer")
 parser.add_argument("--height", type=int, default=720, help="Height of off screen framebuffer")
-parser.add_argument("--px", type=int, default=1, help="Size of pixel in on screen framebuffer")
+parser.add_argument("--px", type=int, default=10, help="Size of pixel in on screen framebuffer")
 parser.add_argument("--test", type=int, help="run a numbered unit test")
 args = parser.parse_args()
-ti.init(arch=ti.cpu)  # can also use ti.gpu
+ti.init(arch=ti.cpu)  # can also use ti.gpu -> tells program to run on cpu
 px = args.px  # Size of pixel in on screen framebuffer
 width, height = args.width // px, args.height // px  # Size of off-screen framebuffer
-pix = np.zeros((width, height, 3), dtype=np.float32)
+pix = np.zeros((width, height, 3), dtype=np.float32)  # Creates an array of zeros with size of off-screen framebuffer,
+# 3 being for colors
 depth = np.zeros((width, height, 1), dtype=np.float32)
-pixti = ti.Vector.field(3, dtype=ti.f32, shape=(width, height))
-pixels = ti.Vector.field(3, dtype=ti.f32, shape=(width * px, height * px))
-V, _, N, T, _, TN = igl.read_obj(args.file)  # read mesh with normals
+pixti = ti.Vector.field(3, dtype=ti.f32, shape=(width, height))  # off-screen pixels
+pixels = ti.Vector.field(3, dtype=ti.f32, shape=(width * px, height * px))  # on-screen pixels
+V, _, N, T, _, TN = igl.read_obj(args.file)  # read mesh with normals, V=vertex coordinates, N=vertex normals,
+
+
+# T=texture coordinates, TN=texture normals -> does this mean that for each triangle, there is one normal thus 3
+# vertices will have the same normal?
 
 
 @ti.kernel
@@ -34,6 +40,7 @@ def copy_pixels():
 
 
 gui = ti.GUI("Rasterizer", res=(width * px, height * px))
+
 t = 0  # time step for time varying transformations
 translate = np.array([width / 2, height / 2, 0])  # translate to center of window
 scale = 200 / px * np.eye(3)  # scale to fit in the window
@@ -50,8 +57,9 @@ while gui.running:
     Rz = np.array([[c, s, 0], [-s, c, 0], [0, 0, 1]])
     Vt = (scale @ Ry @ Rx @ Rz @ V.T).T
     Vt = Vt + translate
-    Nt = (Ry @ Rx @ Rz @ N.T).T
+    Nt = (Ry @ Rx @ Rz @ N.T).T # rotation order -> possible gimbal lock?
 
+    # Apply transformation matrix
     # draw!
 
     pixti.from_numpy(pix)
