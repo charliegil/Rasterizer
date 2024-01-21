@@ -2,6 +2,8 @@
 # 260 970 950
 
 import math
+from time import sleep
+
 import igl
 import numpy as np
 import taichi as ti
@@ -24,7 +26,10 @@ pix = np.zeros((width, height, 3), dtype=np.float32)  # Creates an array of zero
 depth = np.zeros((width, height, 1), dtype=np.float32)
 pixti = ti.Vector.field(3, dtype=ti.f32, shape=(width, height))  # off-screen pixels
 pixels = ti.Vector.field(3, dtype=ti.f32, shape=(width * px, height * px))  # on-screen pixels
-V, _, N, T, _, TN = igl.read_obj(args.file)  # read mesh with normals, V=vertex coordinates, N=vertex normals,
+V, _, N, T, _, TN = igl.read_obj(args.file)  # read mesh with normals, V=vertex coordinates, N=vertex
+
+
+# normals,
 
 
 # T=texture coordinates, TN=texture normals -> does this mean that for each triangle, there is one normal thus 3
@@ -37,6 +42,12 @@ def copy_pixels():
     for i, j in pixels:
         if px < 2 or (tm.mod(i, px) != 0 and tm.mod(j, px) != 0):
             pixels[i, j] = pixti[i // px, j // px]
+
+
+def get_bary(triangle):
+    p1 = triangle[0]
+    p2 = triangle[1]
+    p3 = triangle[2]
 
 
 gui = ti.GUI("Rasterizer", res=(width * px, height * px))
@@ -55,12 +66,39 @@ while gui.running:
     Rx = np.array([[1, 0, 0], [0, c, s], [0, -s, c]])
     c, s = math.cos(1.8 * t), math.sin(1.8 * t)
     Rz = np.array([[c, s, 0], [-s, c, 0], [0, 0, 1]])
-    Vt = (scale @ Ry @ Rx @ Rz @ V.T).T
-    Vt = Vt + translate
-    Nt = (Ry @ Rx @ Rz @ N.T).T # rotation order -> possible gimbal lock?
+    Vt = (scale @ Ry @ Rx @ Rz @ V.T).T  # apply scale and rotation to vertices
+    Vt = Vt + translate  # translate vertices
+    Nt = (Ry @ Rx @ Rz @ N.T).T  # apply rotation on vertex normals
 
-    # Apply transformation matrix
-    # draw!
+    # # Compute bounding boxes for all faces
+    # for i in range(len(T)):
+    #     vertices = list(T[i])  # get indices of vertices associated with face i
+    #     triangle = np.array([Vt[vertices[0]], Vt[vertices[1]], Vt[vertices[2]]])
+    #     xs = np.array([triangle[0][0], triangle[1][0], triangle[2][0]])
+    #     ys = np.array([triangle[0][1], triangle[1][1], triangle[2][1]])
+    #     xl = int(min(xs))
+    #     xh = int(max(xs))
+    #     yl = int(min(ys))
+    #     yh = int(max(ys))
+    #
+    #     # random color
+    #     color = list(np.random.choice(range(256), size=3))
+    #
+    #     # Barycentric coordinates
+    #     # igl.barycentric_coordinates_tri(p, triangle[0], triangle[1], triangle[2])
+    #
+    #     for x in range(xl, xh):
+    #         for y in range(yl, yh):
+    #
+    #             p = (x, y)
+    #             # Q1
+    #             if args.test == 1:
+    #                 pix[x, y] = color
+    for x, y in Vt:
+        xl = x - 1
+        xh = x + 1
+        yl = y - 1
+        yh = y + 1
 
     pixti.from_numpy(pix)
     copy_pixels()
