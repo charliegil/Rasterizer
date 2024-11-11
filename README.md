@@ -4,7 +4,7 @@ This repository contains my work for COMP 557 assignments, exploring core comput
 
 ---
 
-## Assignment 1 - Rasterizer
+## 1. Rasterizer
 
 In this assignment, I implemented a simple rasterizer in Python. The rasterizer processes 2D images by converting geometric descriptions of shapes into pixel data, simulating the basic steps of rendering.
 
@@ -14,7 +14,7 @@ In this assignment, I implemented a simple rasterizer in Python. The rasterizer 
 
 ---
 
-## Assignment 2 - Rotation Interpolation and Modern GL Shading
+## 2. Rotation Interpolation and Modern GL Shading
 
 This assignment focused on implementing various rotation interpolation methods, including **Euler angles** and **quaternions**. I also used Modern GL shaders to implement **Blinn-Phong shading**, which enhances the scene with realistic light reflections. Additionally, the system includes two eyepoint perspectives, enabled by appropriate coordinate-space transformations.
 
@@ -28,7 +28,7 @@ This assignment focused on implementing various rotation interpolation methods, 
 
 ---
 
-## Assignment 3 - Mesh Subdivision
+## 3. Mesh Subdivision
 
 In this assignment, I implemented a **mesh subdivision algorithm** using a **half-edge data structure (HEDS)**. The algorithm refines the mesh by subdividing its faces, and the interface allows visual exploration of mesh faces, vertices, and half-edges. Users can navigate between different subdivision levels, viewing the **odd and even vertices** used in the algorithm and the normals for each face.
 
