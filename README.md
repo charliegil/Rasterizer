@@ -1,9 +1,3 @@
-# COMP 557 Assignments
-
-This repository contains my work for COMP 557 assignments, exploring core computer graphics techniques like rasterization, rotation interpolation, shading, and mesh subdivision. Below is an overview of each assignment, complete with videos and images showcasing the results.
-
----
-
 ## 1. Rasterizer
 
 In this assignment, I implemented a simple rasterizer in Python. The rasterizer processes 2D images by converting geometric descriptions of shapes into pixel data, simulating the basic steps of rendering.
